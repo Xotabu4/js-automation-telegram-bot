@@ -41,6 +41,14 @@ bot.onText(/\/execute .*/, async (msg, match) => {
   toExecute = toExecute.replace("’", "'");
 
   console.log("Code to execute: ", toExecute);
+  // Timeout for long running commands
+  const timeoutMarker = setTimeout(function() {
+    bot.sendMessage(
+      msg.chat.id,
+      `Sorry, your code reached 1 min timeout: ${toExecute}`
+    );
+    childProcess.kill();
+  }, 60000);
   const processPromise = spawn(
     "node",
     [`${__dirname}/executor.js`, "--code", Buffer.from(toExecute)],
@@ -49,21 +57,15 @@ bot.onText(/\/execute .*/, async (msg, match) => {
     }
   )
     .then(function(result) {
+      clearTimeout(timeoutMarker);
       console.log("[spawn] stdout: ", result.stdout.toString());
       bot.sendMessage(msg.chat.id, "Output: " + result.stdout.toString());
     })
     .catch(function(err) {
+      clearTimeout(timeoutMarker);
       console.error("[spawn] stderr: ", err.stderr);
       bot.sendMessage(msg.chat.id, "Error output: " + err.stderr.toString());
     });
   const childProcess = processPromise.childProcess;
   console.log("[spawn] New process spawned: ", childProcess.pid);
-  // Timeout for long running commands
-  setTimeout(function() {
-    bot.sendMessage(
-      msg.chat.id,
-      `Sorry, your code reached 1 min timeout: ${toExecute}`
-    );
-    childProcess.kill();
-  }, 60000);
 });
