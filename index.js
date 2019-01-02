@@ -21,8 +21,7 @@ const options = {
 // to get this automatically
 // See: https://devcenter.heroku.com/articles/dyno-metadata
 const url =
-  process.env.APP_URL ||
-  "https://js-automation-telegram-bot.herokuapp.com:443";
+  process.env.APP_URL || "https://js-automation-telegram-bot.herokuapp.com:443";
 const bot = new TelegramBot(TELEGRAM_TOKEN, options);
 
 // This informs the Telegram servers of the new webhook.
@@ -41,7 +40,8 @@ bot.onText(/\/execute .*/, async (msg, match) => {
   toExecute = toExecute.replace("‘", "'");
   toExecute = toExecute.replace("’", "'");
 
-  spawn(
+  console.log("Code to execute: ", toExecute);
+  const processPromise = spawn(
     "node",
     [`${__dirname}/executor.js`, "--code", Buffer.from(toExecute)],
     {
@@ -56,4 +56,14 @@ bot.onText(/\/execute .*/, async (msg, match) => {
       console.error("[spawn] stderr: ", err.stderr);
       bot.sendMessage(msg.chat.id, "Error output: " + err.stderr.toString());
     });
+  const childProcess = processPromise.childProcess;
+  console.log("[spawn] New process spawned: ", childProcess.pid);
+  // Timeout for long running commands
+  setTimeout(60000, function() {
+    bot.sendMessage(
+      msg.chat.id,
+      `Sorry, your code reached 1 min timeout: ${toExecute}`
+    );
+    childProcess.kill();
+  });
 });
