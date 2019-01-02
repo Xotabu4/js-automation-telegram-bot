@@ -59,11 +59,11 @@ bot.onText(/\/execute .*/, async (msg, match) => {
   const childProcess = processPromise.childProcess;
   console.log("[spawn] New process spawned: ", childProcess.pid);
   // Timeout for long running commands
-  setTimeout(60000, function() {
+  setTimeout(function() {
     bot.sendMessage(
       msg.chat.id,
       `Sorry, your code reached 1 min timeout: ${toExecute}`
     );
     childProcess.kill();
-  });
+  }, 60000);
 });
