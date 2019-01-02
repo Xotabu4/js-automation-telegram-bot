@@ -1,0 +1,23 @@
+{
+  "name": "js-automation-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram-bot for js automation telegram group",
+  "main": "index.js",
+  "scripts": {
+    "start": "forever -l log.log -o log.log -e log.log index.js",
+    "simplestart": "node index.js",
+    "stop": "forever stopall"
+  },
+  "author": "Oleksandr Khotemskyi <xotabu4@gmail.com> (https://github.com/Xotabu4)",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node-telegram-bot-api": "^0.28.2",
+    "@types/request-promise-native": "1.0.15",
+    "forever": "0.15.3",
+    "moment": "^2.18.1",
+    "node-telegram-bot-api": "0.30.0",
+    "request-promise-native": "1.0.5",
+    "request": "2.88.0",
+    "child-process-promise": "2.2.1"
+  }
+}
